@@ -27,8 +27,18 @@ export default ({ mode }) => {
         },
         build: {
             target: 'es2022',
-            cssMinify: 'esbuild'
+            cssMinify: 'esbuild',
+            minify: 'esbuild'
         },
+        esbuild: {
+            target: 'es2022',
+            logOverride: {
+                'css-syntax-error': 'silent'
+            }
+        },
+
+
+
 
     });
 };
