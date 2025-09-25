@@ -14,7 +14,7 @@ const props = defineProps<{
     showStatus?: boolean;
 }>();
 
-const groupId = computed(() => parseInt(props.gms.group.domainIdentifier));
+const groupId = computed(() => parseInt(props.gms.group.domainIdentifier || '0'));
 const { fields, requiredFields } = useGroupMemberfields(groupId);
 const currentUser = useCurrentUser();
 
@@ -96,8 +96,8 @@ const statusTag = computed(() => {
 
     return {
         label: value ?? 'Eingeladen',
-        color: statuses[value]?.color ?? 'yellow',
-        icon: statuses[value]?.icon ?? 'fas fa-envelope',
+        color: statuses[value as keyof typeof statuses]?.color ?? 'yellow',
+        icon: (statuses[value as keyof typeof statuses]?.icon ?? 'fas fa-envelope') as any,
     };
 });
 </script>

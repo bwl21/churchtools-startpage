@@ -8,15 +8,20 @@ import { ctUtils } from '@churchtools/utils';
 import { ctStyleguide } from '@churchtools/styleguide';
 import { VueQueryPlugin } from '@tanstack/vue-query';
 
-import '@churchtools/styleguide/style';
 import './tailwind.css';
+import '@churchtools/styleguide/style';
 import './assets/fontawesome/css/all.css';
 
 declare const window: Window &
     typeof globalThis & {
         settings: {
             base_url?: string;
+            language?: string;
         };
+        tx: (key: string) => string;
+        t: (key?: string, ...args: unknown[]) => string;
+        i18n: (key?: string, ...args: unknown[]) => string;
+        escapeHtmlMD: (text: string) => string;
     };
 
 const baseUrl = window.settings?.base_url ?? import.meta.env.VITE_BASE_URL;
@@ -27,8 +32,8 @@ const pinia = createPinia();
 
 if (import.meta.env.MODE === 'development') {
     window.tx = (e: string) => e;
-    window.t = (e: string) => e;
-    window.i18n = (e: string) => e;
+    window.t = (e?: string, ..._args: unknown[]) => e || '';
+    window.i18n = (e?: string, ..._args: unknown[]) => e || '';
     window.escapeHtmlMD = (e: string) => e;
     window.settings = {
         language: 'de',
@@ -38,17 +43,17 @@ if (import.meta.env.MODE === 'development') {
 app.use(ctUtils, {
     baseUrl,
     pinia,
-    t: window.t ?? ((e: string) => e),
+    t: window.t ?? ((e?: string) => e || ''),
 });
 app.use(ctStyleguide, {
     baseUrl,
-    t: window.t ?? ((e: string) => e),
+    t: window.t ?? ((e?: string) => e || ''),
 });
 
 app.mixin({
     methods: {
-        t: function (key: string, _parameter: string | object) {
-            return t(key, _parameter);
+        t: function (key?: string, ..._args: unknown[]) {
+            return window.t(key, ..._args);
         },
         tx: function (key: string) {
             return key;
