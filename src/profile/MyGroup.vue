@@ -65,16 +65,16 @@ const fields = computed(
             ...f,
             key: f.key.replaceAll('.', '_'),
             nameTranslated: t(f.name, false),
-            options: f.options.filter((o) => !defaultValues.includes(o.id)),
+            options: f.options.filter((o: any) => !defaultValues.includes(o.id)),
         })) ?? []
 );
 
 const items = computed(() => {
-    const viz = mapViz({}, fields.value, values.value);
+    const viz = mapViz({}, fields.value as any, values.value);
 
     const mapped = Object.values(viz ?? {}).map((item) => {
         return {
-            type: 'key-value',
+            type: 'key-value' as const,
             viz: item,
             bold: true,
             editable: userAllowedInGroup(
@@ -84,12 +84,13 @@ const items = computed(() => {
                 item.field.securityLevel
             ),
             context: name.value,
-            onSave: async (e) => {
+            onSave: async (e: any) => {
                 // eslint-disable-next-line prefer-const
                 let [key, values] = Object.entries(e)[0];
                 const field = fields.value.find(
                     (f) => f.key === key.replaceAll('.', '_')
                 );
+                if (!field) return false;
                 if (
                     [
                         'select',
@@ -109,7 +110,7 @@ const items = computed(() => {
                                   (payload.fields ?? [])?.map((f) => [
                                       f.id,
                                       Array.isArray(f.value)
-                                          ? f.value.filter((v) => v)
+                                          ? f.value.filter((v: any) => v)
                                           : f.value,
                                   ])
                               )
@@ -125,8 +126,10 @@ const items = computed(() => {
                         queryKey: ['groups', id.value, 'members'],
                     });
                     successToast('Daten gespeichert');
+                    return true;
                 } catch (error) {
                     errorToast(errorHelper.getTranslatedErrorMessage(error));
+                    return false;
                 }
             },
         };
@@ -145,7 +148,7 @@ const items = computed(() => {
         :title="name"
         :breadcrumbs="[
             { title: 'Meine Anmeldung', to: { name: 'profile' } },
-            { title: name },
+            { title: name || 'Gruppe' },
         ]"
     >
         <div

@@ -33,42 +33,42 @@ export default function useGroupMemberfields(
     const fields = computed(() =>
         (pureGroupMemberfields.value ?? []).map((field) => {
             if (field.type === 'group') {
+                const groupField = field.field as any;
                 return {
-                    id: field.field.id,
-                    key: field.field.fieldName,
+                    id: groupField.id,
+                    key: groupField.fieldName || groupField.name,
                     name:
-                        (field.field.nameInSignupForm || field.field.name) +
-                        (field.field.requiredInRegistrationForm ? ' *' : ''),
-                    note: field.field.noteInSignupForm || field.field.note,
-                    fieldTypeCode: field.field.fieldTypeCode,
-                    sortKey: field.field.sortKey,
-                    securityLevel: field.field.securityLevel,
-                    defaultValue: field.field.defaultValue,
-                    maxLength: field.field.maxLength,
-                    options: field.field.options,
-                    useInRegistrationForm: field.field.useInRegistrationForm,
+                        (groupField.nameInSignupForm || groupField.name) +
+                        (groupField.requiredInRegistrationForm ? ' *' : ''),
+                    note: groupField.noteInSignupForm || groupField.note || '',
+                    fieldTypeCode: groupField.fieldTypeCode,
+                    sortKey: groupField.sortKey || 0,
+                    securityLevel: groupField.securityLevel || 0,
+                    defaultValue: groupField.defaultValue || null,
+                    maxLength: groupField.maxLength || null,
+                    options: groupField.options || [],
+                    useInRegistrationForm: groupField.useInRegistrationForm || false,
                     requiredInRegistrationForm:
-                        field.field.requiredInRegistrationForm,
+                        groupField.requiredInRegistrationForm || false,
                 };
             }
+            const dbField = (field.field as any).dbField;
             return {
                 id: field.field.id,
-                key: field.field.dbField.name,
+                key: dbField?.name || 'unknown',
                 name:
-                    field.field.dbField.name +
-                    (field.field.dbField.requiredInRegistrationForm
-                        ? ' *'
-                        : ''),
+                    (dbField?.name || 'Unknown Field') +
+                    (dbField?.requiredInRegistrationForm ? ' *' : ''),
                 note: '',
-                fieldTypeCode: field.field.dbField.fieldType.internCode,
-                sortKey: field.field.dbField.sortKey,
-                securityLevel: field.field.dbField.securityLevel,
+                fieldTypeCode: dbField?.fieldType?.internCode || 'text',
+                sortKey: dbField?.sortKey || 0,
+                securityLevel: dbField?.securityLevel || 0,
                 defaultValue: null,
-                maxLength: field.field.dbField.length,
-                options: field.field.dbField.options ?? [],
+                maxLength: dbField?.length || null,
+                options: dbField?.options ?? [],
                 useInRegistrationForm: true,
                 requiredInRegistrationForm:
-                    field.field.dbField.requiredInRegistrationForm,
+                    dbField?.requiredInRegistrationForm || false,
             };
         })
     );

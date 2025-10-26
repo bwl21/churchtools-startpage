@@ -120,12 +120,12 @@ const fields = computed(() => {
                 field: {
                     ...item?.field,
                     nullable:
-                        item?.field.fieldType.internCode === 'text' &&
-                        item.field.key !== 'name'
+                        item?.field?.fieldType?.internCode === 'text' &&
+                        item?.field?.key !== 'name'
                             ? true
-                            : item?.field.nullable,
-                },
-            },
+                            : item?.field?.nullable,
+                } as any,
+            } as any,
             editable: editLevel
                 ? item?.field.securityLevel <= editLevel[0]
                 : false,
@@ -140,8 +140,10 @@ const fields = computed(() => {
                         queryKey: ['currentUser'],
                     });
                     successToast('Daten gespeichert');
+                    return true;
                 } catch (error) {
                     errorToast(errorHelper.getTranslatedErrorMessage(error));
+                    return false;
                 }
             },
         };

@@ -1,14 +1,15 @@
 {
-    "name": "churchtools-plugin-pjta",
+    "name": "churchtools-startpage-pjta",
     "private": true,
-    "version": "0.0.0",
+    "version": "0.0.2",
     "type": "module",
     "scripts": {
         "dev": "vite",
         "build": "vue-tsc ; vite build",
         "types": "vue-tsc",
         "prettier": "prettier .  --write",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "deploy": "npm run build && node scripts/package.js"
     },
     "dependencies": {
         "@tanstack/vue-query": "^5.14.4",
