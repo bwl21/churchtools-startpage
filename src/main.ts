@@ -5,7 +5,7 @@ import { createPinia } from 'pinia';
 import { churchtoolsClient } from '@churchtools/churchtools-client';
 import { router } from './router';
 import { ctUtils } from '@churchtools/utils';
-import { ctStyleguide } from '@churchtools/styleguide';
+import { ctPlugin, ctStyleguide } from '@churchtools/styleguide';
 import { VueQueryPlugin } from '@tanstack/vue-query';
 
 import './tailwind.css';
@@ -49,6 +49,7 @@ app.use(ctStyleguide, {
     baseUrl,
     t: window.t ?? ((e?: string) => e || ''),
 });
+app.use(ctPlugin);
 
 app.mixin({
     methods: {

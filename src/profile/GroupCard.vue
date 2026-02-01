@@ -14,7 +14,9 @@ const props = defineProps<{
     showStatus?: boolean;
 }>();
 
-const groupId = computed(() => parseInt(props.gms.group.domainIdentifier || '0'));
+const groupId = computed(() =>
+    parseInt(props.gms.group.domainIdentifier || '0')
+);
 const { fields, requiredFields } = useGroupMemberfields(groupId);
 const currentUser = useCurrentUser();
 
@@ -64,6 +66,7 @@ const tag = computed(() => {
         };
     }
     return {
+        class: 'pjta-required',
         color: 'red',
         label: 'Angaben unvollständig',
         icon: 'fas fa-circle-exclamation' as const,
@@ -97,7 +100,8 @@ const statusTag = computed(() => {
     return {
         label: value ?? 'Eingeladen',
         color: statuses[value as keyof typeof statuses]?.color ?? 'yellow',
-        icon: (statuses[value as keyof typeof statuses]?.icon ?? 'fas fa-envelope') as any,
+        icon: (statuses[value as keyof typeof statuses]?.icon ??
+            'fas fa-envelope') as any,
     };
 });
 </script>

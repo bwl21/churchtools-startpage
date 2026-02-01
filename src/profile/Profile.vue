@@ -5,8 +5,9 @@ import {
     LoadingDots,
     SectionedCard,
     KeyValueItem,
+    InfoBox,
 } from '@churchtools/styleguide';
-import { computed, toRef } from 'vue';
+import { computed, nextTick, onMounted, ref, toRef, watch } from 'vue';
 import useMyGroups from '../composables/useMyGroups';
 import useWikiPage from '../composables/useWikiPage';
 import { mdToHtml } from '../utils/helper';
@@ -153,9 +154,26 @@ const fields = computed(() => {
         'viz.field.sortKey',
     ]);
 });
+const showWarning = ref(false);
+const initWarning = () => {
+    showWarning.value = !!document.querySelector('.pjta-required');
+};
+onMounted(() => {
+    setInterval(() => {
+        initWarning();
+    }, 500);
+});
 </script>
 <template>
     <ContentWrapper max-width>
+        <div v-if="showWarning" class="sticky top-0 bg-white z-10">
+            <InfoBox
+                icon="fas fa-octagon-exclamation"
+                color="red"
+                title="ACHTUNG! Es fehlen noch Daten"
+                description="Bitte schaue unten nach roten Markierungen und fülle die benötigten Felder aus."
+            />
+        </div>
         <div class="max-w-p mb-10 pjta-markdown" v-html="description"></div>
         <div class="flex flex-col gap-8">
             <LoadingDots
