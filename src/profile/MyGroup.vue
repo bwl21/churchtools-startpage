@@ -65,7 +65,9 @@ const fields = computed(
             ...f,
             key: f.key.replaceAll('.', '_'),
             nameTranslated: t(f.name, false),
-            options: f.options.filter((o: any) => !defaultValues.includes(o.id)),
+            options: f.options.filter(
+                (o: any) => !defaultValues.includes(o.id)
+            ),
         })) ?? []
 );
 
@@ -102,7 +104,14 @@ const items = computed(() => {
                     values ??= null;
                 }
 
-                const payload = { fields: { [field.id]: values } };
+                const payload = {
+                    fields: {
+                        [field.id]:
+                            typeof values === 'number'
+                                ? values.toString()
+                                : values,
+                    },
+                };
                 const p = {
                     fields:
                         Array.isArray(payload.fields) || !payload.fields
