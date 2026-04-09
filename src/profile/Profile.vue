@@ -21,6 +21,7 @@ import {
     usePermissions,
     useGroupTypes,
     useRoles,
+    t,
 } from '@churchtools/utils';
 import {
     STARTPAGE_WIKIPAGE_ID,
@@ -154,11 +155,36 @@ const fields = computed(() => {
         'viz.field.sortKey',
     ]);
 });
+const hasAcceptedGroup = computed(() => {
+    return myGroups.value.some((group) => {
+        const groupType = groupTypes.value.find(
+            (gt) => gt.id === rolesById.value[group.groupTypeRoleId].groupTypeId
+        );
+        if (!groupType || groupType.shorty !== 'AB') {
+            return false;
+        }
+        const isAbgesagt = group.fields?.some((f) => {
+            const isAbgesagt = Array.isArray(f.value)
+                ? !!f.value.filter((v) => v.toLowerCase().includes('abgesagt'))
+                      .length
+                : f.value?.toString().toLowerCase().includes('abgesagt');
+            return isAbgesagt;
+        });
+        if (isAbgesagt) {
+            return false;
+        }
+        return true;
+    });
+});
 const showWarning = ref(false);
 const initWarning = () => {
-    showWarning.value = !!document.querySelector('.pjta-required');
+    if (hasAcceptedGroup.value) {
+        showWarning.value = !!document.querySelector('.pjta-required');
+    }
 };
 onMounted(() => {
+    queryClient.invalidateQueries({ queryKey: ['myGroups'] });
+    initWarning();
     setInterval(() => {
         initWarning();
     }, 500);

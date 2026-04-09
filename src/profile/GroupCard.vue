@@ -36,6 +36,19 @@ const fieldsCompleted = computed(() => {
     if (!myMembership.value?.fields || !requiredFields.value?.length) {
         return 'no-fields';
     }
+    const hasAbgesagt = requiredFields.value.some((f) => {
+        const res = myMembership.value?.fields?.find((ff) => {
+            const isAbgesagt = Array.isArray(ff.value)
+                ? !!ff.value.filter((v) => v.toLowerCase().includes('abgesagt'))
+                      .length
+                : ff.value?.toString().toLowerCase().includes('abgesagt');
+            return ff.id === f.id && isAbgesagt;
+        });
+        return !!res;
+    });
+    if (hasAbgesagt) {
+        return true;
+    }
     return requiredFields.value.every((f) => {
         const res = myMembership.value?.fields?.find((ff) => {
             const hasValue = Array.isArray(ff.value)
