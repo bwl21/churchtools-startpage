@@ -28,6 +28,10 @@ import {
     STARTPAGE_CATEGORY_ID,
     STARTPAGE_FOOTER_WIKIPAGE_ID,
     GROUP_TYPE_SHORTIES,
+    GROUP_TYPE_SHORTIES_WITH_ACCEPT,
+    GROUP_TYPE_SHORTIES_IF_ACCEPTED_GROUP,
+    GROUP_TYPE_SHORTIES_AUTO_ACCEPTED,
+    GROUP_TYPE_SHORTIES_WITH_ACCEPTANCE_FIELD
 } from '../utils/config';
 import GroupCard from './GroupCard.vue';
 import {
@@ -65,7 +69,7 @@ const filteredGroupTypes = computed(() => {
                             group: {
                                 ...group.group,
                                 title: group.group.title,
-                                showStatus: g.shorty === 'AB',
+                                showStatus: GROUP_TYPE_SHORTIES_WITH_ACCEPTANCE_FIELD.includes(g.shorty),
                             },
                         };
                     }),
@@ -73,6 +77,12 @@ const filteredGroupTypes = computed(() => {
         })
         .filter((g) => g.groups.length > 0);
 });
+
+const displayedGroupTypes = computed(() =>
+    filteredGroupTypes.value.filter((type) =>
+        !GROUP_TYPE_SHORTIES_IF_ACCEPTED_GROUP.includes(type.shorty) || hasAcceptedGroup.value
+    )
+);
 
 const { getWikiPage } = useWikiPage();
 const { data: wikiPage } = getWikiPage(
@@ -160,20 +170,25 @@ const hasAcceptedGroup = computed(() => {
         const groupType = groupTypes.value.find(
             (gt) => gt.id === rolesById.value[group.groupTypeRoleId].groupTypeId
         );
-        if (!groupType || groupType.shorty !== 'AB') {
+        if (!groupType || !GROUP_TYPE_SHORTIES_WITH_ACCEPT.includes(groupType.shorty)) {
             return false;
         }
-        const isAbgesagt = group.fields?.some((f) => {
-            const isAbgesagt = Array.isArray(f.value)
-                ? !!f.value.filter((v) => v.toLowerCase().includes('abgesagt'))
-                      .length
-                : f.value?.toString().toLowerCase().includes('abgesagt');
-            return isAbgesagt;
-        });
-        if (isAbgesagt) {
-            return false;
+        // STAND wird automatisch als akzeptiert gezählt
+        if (GROUP_TYPE_SHORTIES_AUTO_ACCEPTED.includes(groupType.shorty)) {
+            return true;
         }
-        return true;
+        // AB muss auf "abgesagt" geprüft werden
+        if (GROUP_TYPE_SHORTIES_WITH_ACCEPTANCE_FIELD.includes(groupType.shorty)) {
+            const isAbgesagt = group.fields?.some((f) => {
+                const isAbgesagt = Array.isArray(f.value)
+                    ? !!f.value.filter((v) => v.toLowerCase().includes('abgesagt'))
+                          .length
+                    : f.value?.toString().toLowerCase().includes('abgesagt');
+                return isAbgesagt;
+            });
+            return !isAbgesagt;
+        }
+        return false;
     });
 });
 const showWarning = ref(false);
@@ -208,7 +223,7 @@ onMounted(() => {
             />
             <template v-else>
                 <SectionedCard title="Persönliche Daten" :items="fields" />
-                <div v-for="type in filteredGroupTypes" :key="type.id">
+                <div v-for="type in displayedGroupTypes" :key="type.id">
                     <SectionHeader
                         :title="type.namePluralTranslated"
                         :note="type.description"
